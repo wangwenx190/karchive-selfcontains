@@ -1,145 +1,64 @@
-set(HAVE_BZIP2_SUPPORT ${BZIP2_FOUND})
-if(BZIP2_FOUND AND BZIP2_NEED_PREFIX)
-    set(NEED_BZ2_PREFIX 1)
+cmake_minimum_required(VERSION 3.16)
+
+project(KArchive VERSION "5.245.0" LANGUAGES CXX)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
+if(KARCHIVE_BUILD_STATIC)
+    add_library(KF6Archive STATIC)
+else()
+    add_library(KF6Archive SHARED)
 endif()
-
-set(HAVE_XZ_SUPPORT ${LIBLZMA_FOUND})
-set(HAVE_ZSTD_SUPPORT ${LibZstd_FOUND})
-
-configure_file(config-compression.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-compression.h)
-
-add_library(KF6Archive)
 add_library(KF6::Archive ALIAS KF6Archive)
 
 set_target_properties(KF6Archive PROPERTIES
-    VERSION     ${KARCHIVE_VERSION}
-    SOVERSION   ${KARCHIVE_SOVERSION}
-    EXPORT_NAME "Archive"
+    VERSION "${PROJECT_VERSION}"
+    SOVERSION "${PROJECT_VERSION}"
 )
 
-ecm_create_qm_loader(KF6Archive karchive6_qt)
-
-if(BZIP2_FOUND)
-    target_sources(KF6Archive PRIVATE kbzip2filter.cpp)
-    target_link_libraries(KF6Archive PRIVATE BZip2::BZip2)
-endif()
-
-if(LIBLZMA_FOUND)
-    target_sources(KF6Archive PRIVATE kxzfilter.cpp k7zip.cpp)
-    target_link_libraries(KF6Archive PRIVATE LibLZMA::LibLZMA)
-endif()
-
-if (LibZstd_FOUND)
-    target_sources(KF6Archive PRIVATE kzstdfilter.cpp)
-    target_link_libraries(KF6Archive PRIVATE PkgConfig::LibZstd)
-endif()
-
-
-target_sources(KF6Archive PRIVATE karchive.cpp
-    kar.cpp
-    kcompressiondevice.cpp
-    kfilterbase.cpp
-    kgzipfilter.cpp
-    klimitediodevice.cpp
-    knonefilter.cpp
-    ktar.cpp
-    kzip.cpp
-    krcc.cpp
+target_sources(KF6Archive PRIVATE
+    karchive_export.h
+    config-compression.h loggingcategory.h
+    karchiveentry.h karchivefile.h karchivedirectory.h
+    karchive.h karchive_p.h karchive.cpp
+    kar.h kar.cpp
+    kcompressiondevice.h kcompressiondevice_p.h kcompressiondevice.cpp
+    kfilterbase.h kfilterbase.cpp
+    kgzipfilter.h kgzipfilter.cpp
+    klimitediodevice_p.h klimitediodevice.cpp
+    knonefilter.h knonefilter.cpp
+    ktar.h ktar.cpp
+    kzipfileentry.h kzip.h kzip.cpp
+    krcc.h krcc.cpp
+    kbzip2filter.h kbzip2filter.cpp
+    kxzfilter.h kxzfilter.cpp
+    k7zip.h k7zip.cpp
+    kzstdfilter.h kzstdfilter.cpp
 )
 
-ecm_qt_declare_logging_category(KF6Archive
-    HEADER loggingcategory.h
-    IDENTIFIER KArchiveLog
-    CATEGORY_NAME kf.archive
-    OLD_CATEGORY_NAMES kf5.karchive
-    DEFAULT_SEVERITY Warning
-    DESCRIPTION "KArchive"
-    EXPORT KARCHIVE
+target_compile_definitions(KF6Archive PRIVATE
+    KARCHIVE_BUILD_LIBRARY
 )
 
-ecm_generate_export_header(KF6Archive
-    BASE_NAME KArchive
-    GROUP_BASE_NAME KF
-    VERSION ${KF_VERSION}
-    USE_VERSION_HEADER
-    DEPRECATED_BASE_VERSION 0
-    DEPRECATION_VERSIONS
-    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
-)
-
-target_include_directories(KF6Archive
-    INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KArchive>"
-)
-
-target_link_libraries(KF6Archive
-    PUBLIC
-        Qt6::Core
-    PRIVATE
-        ZLIB::ZLIB
-)
-
-ecm_generate_headers(KArchive_HEADERS
-    HEADER_NAMES
-    KArchive
-    KArchiveEntry
-    KArchiveFile
-    KArchiveDirectory
-    KAr
-    KCompressionDevice
-    KFilterBase
-    KRcc
-    KTar
-    KZip
-    KZipFileEntry
-
-    REQUIRED_HEADERS KArchive_HEADERS
-)
-
-install(TARGETS KF6Archive
-        EXPORT KF6ArchiveTargets
-        ${KF_INSTALL_TARGETS_DEFAULT_ARGS})
-
-if(LIBLZMA_FOUND)
-    ecm_generate_headers(KArchive_HEADERS
-        HEADER_NAMES
-        K7Zip
-        REQUIRED_HEADERS KArchive_HEADERS
+if(KARCHIVE_BUILD_STATIC)
+    target_compile_definitions(KF6Archive PUBLIC
+        KARCHIVE_BUILD_STATIC
     )
 endif()
 
-install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/karchive_export.h
-            ${KArchive_HEADERS}
-        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KArchive
-        COMPONENT Devel)
+target_include_directories(KF6Archive PUBLIC .)
 
-ecm_qt_install_logging_categories(
-    EXPORT KARCHIVE
-    FILE karchive.categories
-    DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
+target_link_libraries(KF6Archive PUBLIC
+    Qt6::Core
 )
 
-if(BUILD_QCH)
-    ecm_add_qch(
-        KF6Archive_QCH
-        NAME KArchive
-        BASE_NAME KF6Archive
-        VERSION ${KF_VERSION}
-        ORG_DOMAIN org.kde
-        SOURCES # using only public headers, to cover only public API
-            ${KArchive_HEADERS}
-        MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"
-        LINK_QCHS
-            Qt6Core_QCH
-        INCLUDE_DIRS
-            ${CMAKE_CURRENT_BINARY_DIR}
-        BLANK_MACROS
-            KARCHIVE_EXPORT
-            KARCHIVE_DEPRECATED
-            "KARCHIVE_DEPRECATED_VERSION(x, y, t)"
-        TAGFILE_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
-        QCH_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
-        COMPONENT Devel
-    )
-endif()
-
+target_link_libraries(KF6Archive PRIVATE
+    KArchive::libbz2
+    KArchive::libLZMA
+    KArchive::libz
+    KArchive::libzstd
+)
