@@ -32,9 +32,7 @@
 
 #include "bzlib.h"
 
-#if defined(_MSC_VER)
-# pragma warning(push,1)
-#endif
+
 
 /*-- General stuff. --*/
 
