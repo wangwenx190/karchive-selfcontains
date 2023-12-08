@@ -1,8 +1,6 @@
 #ifndef KARCHIVE_EXPORT_H
 #define KARCHIVE_EXPORT_H
 
-#include <QtCore/qcompilerdetection.h>
-
 #ifndef KARCHIVE_EXPORT
 #  ifdef KARCHIVE_BUILD_STATIC
 #    define KARCHIVE_EXPORT

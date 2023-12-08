@@ -22,7 +22,8 @@ set_target_properties(KF6Archive PROPERTIES
 
 target_sources(KF6Archive PRIVATE
     karchive_export.h
-    config-compression.h loggingcategory.h
+    config-compression.h
+    loggingcategory.h loggingcategory.cpp
     karchiveentry.h karchivefile.h karchivedirectory.h
     karchive.h karchive_p.h karchive.cpp
     kar.h kar.cpp

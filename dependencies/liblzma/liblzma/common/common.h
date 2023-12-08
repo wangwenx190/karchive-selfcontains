@@ -18,7 +18,7 @@
 #include "tuklib_integer.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#	ifdef DLL_EXPORT
+#	if defined(DLL_EXPORT) && !defined(LZMA_API_STATIC)
 #		define LZMA_API_EXPORT __declspec(dllexport)
 #	else
 #		define LZMA_API_EXPORT
