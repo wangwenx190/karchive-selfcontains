@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(KArchive VERSION "5.245.0" LANGUAGES CXX)
+project(KArchive VERSION "5.246.0" LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
