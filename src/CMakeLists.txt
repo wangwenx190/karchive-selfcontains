@@ -17,7 +17,7 @@ add_library(KF6::Archive ALIAS KF6Archive)
 
 set_target_properties(KF6Archive PROPERTIES
     VERSION "${PROJECT_VERSION}"
-    SOVERSION "${PROJECT_VERSION}"
+    SOVERSION "${PROJECT_VERSION_MAJOR}"
 )
 
 target_sources(KF6Archive PRIVATE
