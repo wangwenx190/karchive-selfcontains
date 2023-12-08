@@ -65,7 +65,7 @@ index_encode(void *coder_ptr,
 	while (*out_pos < out_size)
 	switch (coder->sequence) {
 	case SEQ_INDICATOR:
-		out[*out_pos] = 0x00;
+		out[*out_pos] = INDEX_INDICATOR;
 		++*out_pos;
 		coder->sequence = SEQ_COUNT;
 		break;
@@ -153,8 +153,15 @@ index_encode(void *coder_ptr,
 
 out:
 	// Update the CRC32.
-	coder->crc32 = lzma_crc32(out + out_start,
-			*out_pos - out_start, coder->crc32);
+	//
+	// Avoid null pointer + 0 (undefined behavior) in "out + out_start".
+	// In such a case we had no input and thus out_used == 0.
+	{
+		const size_t out_used = *out_pos - out_start;
+		if (out_used > 0)
+			coder->crc32 = lzma_crc32(out + out_start,
+					out_used, coder->crc32);
+	}
 
 	return ret;
 }
@@ -237,15 +244,12 @@ lzma_index_buffer_encode(const lzma_index *i,
 
 	// Do the actual encoding. This should never fail, but store
 	// the original *out_pos just in case.
-#ifndef __clang_analyzer__ // Hide unreachable code from clang-analyzer.
 	const size_t out_start = *out_pos;
-#endif
 	lzma_ret ret = index_encode(&coder, NULL, NULL, NULL, 0,
 			out, out_pos, out_size, LZMA_RUN);
 
 	if (ret == LZMA_STREAM_END) {
 		ret = LZMA_OK;
-#ifndef __clang_analyzer__ // Hide unreachable code from clang-analyzer.
 	} else {
 		// We should never get here, but just in case, restore the
 		// output position and set the error accordingly if something
@@ -253,7 +257,6 @@ lzma_index_buffer_encode(const lzma_index *i,
 		assert(0);
 		*out_pos = out_start;
 		ret = LZMA_PROG_ERROR;
-#endif
 	}
 
 	return ret;

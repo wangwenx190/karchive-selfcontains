@@ -97,7 +97,7 @@ x86_code(void *simple_ptr, uint32_t now_pos, bool is_encoder,
 				if (!Test86MSByte(b))
 					break;
 
-				src = dest ^ ((1ull << (32 - i * 8)) - 1);
+				src = dest ^ ((1U << (32 - i * 8)) - 1);
 			}
 
 			buffer[buffer_pos + 4]
@@ -141,6 +141,7 @@ x86_coder_init(lzma_next_coder *next, const lzma_allocator *allocator,
 }
 
 
+#ifdef HAVE_ENCODER_X86
 extern lzma_ret
 lzma_simple_x86_encoder_init(lzma_next_coder *next,
 		const lzma_allocator *allocator,
@@ -148,8 +149,10 @@ lzma_simple_x86_encoder_init(lzma_next_coder *next,
 {
 	return x86_coder_init(next, allocator, filters, true);
 }
+#endif
 
 
+#ifdef HAVE_DECODER_X86
 extern lzma_ret
 lzma_simple_x86_decoder_init(lzma_next_coder *next,
 		const lzma_allocator *allocator,
@@ -157,3 +160,4 @@ lzma_simple_x86_decoder_init(lzma_next_coder *next,
 {
 	return x86_coder_init(next, allocator, filters, false);
 }
+#endif
