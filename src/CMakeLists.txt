@@ -20,6 +20,14 @@ set_target_properties(KF6Archive PROPERTIES
     SOVERSION "${PROJECT_VERSION_MAJOR}"
 )
 
+qm_add_win_rc_enhanced(KF6Archive
+    NAME "KArchive"
+    VERSION "${PROJECT_VERSION}"
+    DESCRIPTION "Qt addon providing access to numerous types of archives"
+    COPYRIGHT "Copyright (C) KDE"
+    COMPANY "KDE"
+)
+
 target_sources(KF6Archive PRIVATE
     karchive_export.h
     config-compression.h
@@ -62,4 +70,11 @@ target_link_libraries(KF6Archive PRIVATE
     KArchive::libLZMA
     KArchive::libz
     KArchive::libzstd
+)
+
+include(GNUInstallDirs)
+install(TARGETS KF6Archive ka_libbz2 ka_libLZMA ka_libz ka_libzstd
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
