@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(KArchive VERSION "5.246.0" LANGUAGES CXX)
+project(KArchive VERSION "5.248.0" LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -20,13 +20,15 @@ set_target_properties(KF6Archive PROPERTIES
     SOVERSION "${PROJECT_VERSION_MAJOR}"
 )
 
-qm_add_win_rc_enhanced(KF6Archive
-    NAME "KArchive"
-    VERSION "${PROJECT_VERSION}"
-    DESCRIPTION "Qt addon providing access to numerous types of archives"
-    COPYRIGHT "Copyright (C) KDE"
-    COMPANY "KDE"
-)
+if(WIN32 AND NOT KARCHIVE_BUILD_STATIC)
+    qm_add_win_rc_enhanced(KF6Archive
+        NAME "KArchive"
+        VERSION "${PROJECT_VERSION}"
+        DESCRIPTION "Qt addon providing access to numerous types of archives"
+        COPYRIGHT "Copyright (C) KDE"
+        COMPANY "KDE"
+    )
+endif()
 
 set(HEADERS
     karchive_export.h
@@ -98,7 +100,7 @@ target_link_libraries(KF6Archive ${_deps_visibility}
     KArchive::libzstd
 )
 
-if(KARCHIVE_NEED_INSTALL)
+if(KARCHIVE_ENABLE_INSTALL)
     include(GNUInstallDirs)
     install(TARGETS ${_targets}
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

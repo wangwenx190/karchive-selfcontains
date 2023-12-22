@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(KArchive-SelfContains LANGUAGES C CXX)
 
 option(KARCHIVE_BUILD_STATIC "Build static library." OFF)
-option(KARCHIVE_NEED_INSTALL "Enable install." ON)
+option(KARCHIVE_ENABLE_INSTALL "Enable install." OFF)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE AND NOT DEFINED CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release)
